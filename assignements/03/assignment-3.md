@@ -48,7 +48,6 @@
 
 
 
-
 * **1b.2 Available SELinux Users:**
 * 
 **Task:** List all available SELinux users on your computer using `seinfo`.
@@ -59,7 +58,6 @@
 [Paste output here]
 
 ```
-
 
 
 
@@ -77,7 +75,6 @@
 
 * **Explanation of Method:**
 * [Explain how SELinux capabilities were modified]
-
 
 
 
@@ -117,7 +114,6 @@ Domain Transitions (systemd to Apache)
 
 
 
-
 * 
 **1c.2 Can the Apache web server run in domain `httpd_t`?** 
 
@@ -133,7 +129,6 @@ Domain Transitions (systemd to Apache)
 
 
 
-
 * 
 **1c.3 Is systemd allowed a transition to `httpd_t`?** 
 
@@ -146,7 +141,6 @@ Domain Transitions (systemd to Apache)
 [Paste rule output here]
 
 ```
-
 
 
 
@@ -166,7 +160,6 @@ Domain Transitions (systemd to Apache)
 
 
 
-
 ### 1d. 
 
 SELinux Boolean for `public_html` 
@@ -182,7 +175,6 @@ SELinux Boolean for `public_html`
 ```
 
 
-
 ### 1e. 
 
 Custom Web Directory `/www` 
@@ -196,7 +188,6 @@ Custom Web Directory `/www`
 [Paste output here]
 
 ```
-
 
 
 ---
@@ -215,7 +206,7 @@ Custom Web Directory `/www`
 
 
 * 
-**2.1 Print job from LibreOffice:** 
+**2.1 Print job from LibreOffice:**
 
 
 * *Screenshot or Result:* [Insert Image / Description]
@@ -230,8 +221,6 @@ Custom Web Directory `/www`
 [Paste output here]
 
 ```
-
-
 
 
 
@@ -257,141 +246,165 @@ Custom Web Directory `/www`
 
 ---
 
-## Task 4: Two-Factor Authentication (2FA) 
+## Task 4: Two-Factor Authentication (2FA)
 
-> 
 > **Important:** Do not modify any of the files below `/etc/ssh/`; create new files with the modifications.
-> 
-> 
 
-* 
-**Task:** Set up 2FA for SSH login on your computer, using an SSH key and time-based one-time passwords. Set this up on all lab computers of the group.
-
-
-* **Commands & Output (Setup):**
-```bash
-[Paste output here]
-
-```
-
-
-* 
-**SELinux Context Verification:** * *Note:* The `google-authenticator` secret must be stored below `~/.ssh/` to get the correct SELinux context.
-
-
-* **Command showing correct context:**
-```bash
-[Paste output here]
-
-```
+* **Task:** Set up 2FA for SSH login on your computer, using an SSH key and time-based one-time passwords. Set this up on all lab computers of the group.
 
 
 
+Screenshots (Task4):
 
-* 
-**Verification of Login:** * *Task:* Verify that you can log in from one computer to the other using SSH, and that 2FA is used for authentication.
+![Screenshot From 2026-03-02 13-48-54.png](images/Task4/Screenshot%20From%202026-03-02%2013-48-54.png)
 
+Generated secret and QR code shown by `google-authenticator`.
 
-* 
-**Terminal Output (Showing `keyboard-interactive` prompt):** 
+![Screenshot From 2026-03-02 13-49-05.png](images/Task4/Screenshot%20From%202026-03-02%2013-49-05.png)
 
+Second screen of the `google-authenticator` interaction (options and confirmations).
 
-```bash
-[Paste successful login flow here]
+![Screenshot From 2026-03-02 13-49-31.png](images/Task4/Screenshot%20From%202026-03-02%2013-49-31.png)
 
-```
+Moved secret into `~/.ssh/` and prepared for SELinux context relabeling.
 
+![Screenshot From 2026-03-02 13-53-18.png](images/Task4/Screenshot%20From%202026-03-02%2013-53-18.png)
 
+> Created `/etc/ssh/sshd_config.d/60-2fa.conf` and enabled `ChallengeResponseAuthentication`.
 
+![Screenshot From 2026-03-02 13-54-50.png](images/Task4/Screenshot%20From%202026-03-02%2013-54-50.png)
+
+PAM configuration showing `pam_google_authenticator` enabled for SSH.
+
+![Screenshot From 2026-03-02 14-01-28.png](images/Task4/Screenshot%20From%202026-03-02%2014-01-28.png)
+
+SELinux context verification for `~/.ssh/google_authenticator` (use `restorecon` if needed).
+
+![Screenshot From 2026-03-02 14-01-53.png](images/Task4/Screenshot%20From%202026-03-02%2014-01-53.png)
+
+Additional verification of file placement and permissions.
+
+![Screenshot From 2026-03-02 14-02-23.png](images/Task4/Screenshot%20From%202026-03-02%2014-02-23.png)
+
+Login prompt showing `keyboard-interactive` asking for the verification code.
+
+![Screenshot From 2026-03-02 14-04-55.png](images/Task4/Screenshot%20From%202026-03-02%2014-04-55.png)
+
+Successful authentication sequence including verification code entry.
+
+![Screenshot From 2026-03-02 14-12-05.png](images/Task4/Screenshot%20From%202026-03-02%2014-12-05.png)
+
+Session confirmation after successful 2FA login.
+
+![Screenshot From 2026-03-09 12-09-06.png](images/Task4/Screenshot%20From%202026-03-09%2012-09-06.png)
+
+Additional test login showing method and prompts.
+
+![Screenshot From 2026-03-09 12-09-15.png](images/Task4/Screenshot%20From%202026-03-09%2012-09-15.png)
+
+Further verification of interactive login prompts.
 
 
 ---
 
 ## Task 5: Secure your computer 
 
-* 
 **Task:** Use Fail2Ban to secure your computer. Set PAM requirements for password qualities, password history, and account locking if there are many consecutive authentication failures.
-
 
 
 > 
 > **Requirement:** Do not modify directly the PAM files; configure the PAM system using `authselect`.
 > 
-> 
 
-* **Commands & Output (Fail2Ban Setup):**
-```bash
-[Paste output here]
+* **Commands & Output:**
 
-```
+We installed and enabled Fail2Ban, and used `authselect` to enable PAM features such as account lockout and password history. Below are all Task 5 screenshots with short captions. Each image is followed by one blank line and then its caption.
 
+Screenshots:
 
-* **Commands & Output (`authselect` PAM configuration):**
-```bash
-[Paste output here]
+![Screenshot From 2026-03-09 12-13-20.png](images/Task5/Screenshot%20From%202026-03-09%2012-13-20.png)
 
-```
+Fail2Ban installed
 
+![Screenshot From 2026-03-09 12-13-42.png](images/Task5/Screenshot%20From%202026-03-09%2012-13-42.png)
 
+Running fail2ban service
+
+![Screenshot From 2026-03-09 12-18-29.png](images/Task5/Screenshot%20From%202026-03-09%2012-18-29.png)
+
+`authselect` profile selection and feature enabling (faillock, passwd-history).
+
+![Screenshot From 2026-03-09 12-21-42.png](images/Task5/Screenshot%20From%202026-03-09%2012-21-42.png)
+
+Edited faillock options to be more user friendly with wrong password inputs.
+
+![Screenshot From 2026-03-09 12-23-11.png](images/Task5/Screenshot%20From%202026-03-09%2012-23-11.png)
+
+Password history file edited.
+
+![Screenshot From 2026-03-09 12-24-19.png](images/Task5/Screenshot%20From%202026-03-09%2012-24-19.png)
+
+Password quality file edited.
+
+![Screenshot From 2026-03-09 12-25-37.png](images/Task5/Screenshot%20From%202026-03-09%2012-25-37.png)
+
+Test of password change showing enforcement of password policies. Tried a short 6 char password and then long password but withou enough classes, both got rejected.
 
 ---
 
 ## Task 6: SSH 
 
-* 
 **Setup:** Create an SSH key pair as a normal user on your own computer and start an OpenSSH server on your lab computer.
 
+6.1 Direct Login Attempt
 
-
-6.1 Direct Login Attempt 
-
-* 
 **Task:** Try to log in to your lab computer from your own computer.
 
+We attempted a direct SSH connection to the lab host but received a network-level failure (connection timed out). This indicates the lab host is not directly reachable from the client network (no SSH port open or firewall/gateway blocks direct access). The screenshots below show the failed connection and the local key setup.
 
-* **Commands & Output:**
-```bash
-[Paste output here]
+![Screenshot From 2026-03-09 12-29-33.png](images/Task6/Screenshot%20From%202026-03-09%2012-29-33.png)
 
-```
+Direct connection attempt showing network-level failure - connection timeout.
 
+![Screenshot From 2026-03-09 12-31-10.png](images/Task6/Screenshot%20From%202026-03-09%2012-31-10.png)
 
-* **Result & Explanation:**
-* [Explain the result and why this happens].
+SSH key generation and `ssh-copy-id` confirmation - this was later changed to use the provided `https://epleauth.azurewebsites.net` method, that already has public and secret keys generated and we just copied them.
 
+6.2 Jump Host Login
 
-
-
-
-6.2 Jump Host Login 
-
-* 
 **Task:** From your own computer, log into your lab computer with a jump through `eple.hvl.no`.
 
-
-* **Commands & Output:**
-```bash
-[Paste output here]
-
-```
+Using the gateway `eple.hvl.no` as a jump host allowed us to access because the gateway has network reachability to the lab host. We used `ssh -J` to route the connection through the gateway; the SSH key authentication and agent forwarding were used to authenticate. Screenshots below show a successful jump-host login and an interactive shell on the lab host.
 
 
+![Screenshot From 2026-03-09 12-29-45.png](images/Task6/Screenshot%20From%202026-03-09%2012-29-45.png)
 
-6.3 MariaDB SSH Tunnel 
+Tried connecting first, got rejected because of the key.
 
-* 
-**Task:** Install the MariaDB client tool on your own computer, set up an SSH tunnel through `eple.hvl.no` to the MariaDB server on your lab computer, and connect to it.
+![Screenshot From 2026-03-09 12-46-57.png](images/Task6/Screenshot%20From%202026-03-09%2012-46-57.png)
 
+![Screenshot From 2026-03-09 12-45-24.png](images/Task6/Screenshot%20From%202026-03-09%2012-45-24.png)
 
-* **Commands & Output (Establishing Tunnel):**
-```bash
-[Paste output here]
+Tried viewing the key, adding it to ssh as possible solutioons, none worked. We also added the public key to the lab computer `authorized_keys` file. This didn't work, so we had to use the `eple.hvl.no` generated key.
 
-```
+![Screenshot From 2026-03-09 12-47-22.png](images/Task6/Screenshot%20From%202026-03-09%2012-47-22.png)
 
+Added the keys to private computer and lab computer as well. After that the connection was established.
 
-* **Commands & Output (Database Connection):**
-```bash
-[Paste output here]
+6.3 MariaDB SSH Tunnel
 
-```
+**Task**: Install the MariaDB client tool on your own computer, set up an SSH tunnel through `eple.hvl.no` to the MariaDB server on your lab computer, and connect to it.
+
+This task was more challenging then it should have been. We got stuck on the key authorization and discussed with the lecturer the solution for about an hour. In the end it was a combination of corrupted public key on the personal laptop and incorrect ssh calls to the lab computer. Following are screenshots showing the progress, issues we encountered, trying to find the solution and finally working MariaDB connection from personal computer. In the end we created a local port forward from `localhost:13389` to the remote MariaDB port on the lab host via the jump host and then connected the local MariaDB client to the forwarded port. The tunnel successfully forwarded traffic and the client connected to the remote database through the SSH tunnel.
+
+![Screenshot From 2026-03-09 12-50-03.png](images/Task6/Screenshot%20From%202026-03-09%2012-50-03.png)
+
+Installing the MariaDB client tool on personal computer.
+
+![Screenshot From 2026-03-09 13-49-40.png](images/Task6/Screenshot%20From%202026-03-09%2013-49-40.png)
+
+Part of debug command we and lecturer used for finding out the solution to the connection.
+
+![Screenshot From 2026-03-09 13-49-19.png](images/Task6/Screenshot%20From%202026-03-09%2013-49-19.png)
+
+Finally working MariaDB client session over the tunnel after a lot of struggle and debugging. 
