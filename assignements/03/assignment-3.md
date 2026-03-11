@@ -252,58 +252,36 @@ Custom Web Directory `/www`
 
 * **Task:** Set up 2FA for SSH login on your computer, using an SSH key and time-based one-time passwords. Set this up on all lab computers of the group.
 
+![Screenshot From 2026-03-02 13-49-31.png](images/Task4/Screenshot%20From%202026-03-02%2013-49-31.png)
 
-
-Screenshots (Task4):
-
-![Screenshot From 2026-03-02 13-48-54.png](images/Task4/Screenshot%20From%202026-03-02%2013-48-54.png)
-
-Generated secret and QR code shown by `google-authenticator`.
+First we installed the google authenticator and qrencode packages
 
 ![Screenshot From 2026-03-02 13-49-05.png](images/Task4/Screenshot%20From%202026-03-02%2013-49-05.png)
 
-Second screen of the `google-authenticator` interaction (options and confirmations).
+![Screenshot From 2026-03-02 13-48-54.png](images/Task4/Screenshot%20From%202026-03-02%2013-48-54.png)
 
-![Screenshot From 2026-03-02 13-49-31.png](images/Task4/Screenshot%20From%202026-03-02%2013-49-31.png)
-
-Moved secret into `~/.ssh/` and prepared for SELinux context relabeling.
-
-![Screenshot From 2026-03-02 13-53-18.png](images/Task4/Screenshot%20From%202026-03-02%2013-53-18.png)
-
-> Created `/etc/ssh/sshd_config.d/60-2fa.conf` and enabled `ChallengeResponseAuthentication`.
-
-![Screenshot From 2026-03-02 13-54-50.png](images/Task4/Screenshot%20From%202026-03-02%2013-54-50.png)
-
-PAM configuration showing `pam_google_authenticator` enabled for SSH.
-
-![Screenshot From 2026-03-02 14-01-28.png](images/Task4/Screenshot%20From%202026-03-02%2014-01-28.png)
-
-SELinux context verification for `~/.ssh/google_authenticator` (use `restorecon` if needed).
-
-![Screenshot From 2026-03-02 14-01-53.png](images/Task4/Screenshot%20From%202026-03-02%2014-01-53.png)
-
-Additional verification of file placement and permissions.
+Command to generate the secret and `google-authenticator` showing the generated secret and QR code for enrollment.
 
 ![Screenshot From 2026-03-02 14-02-23.png](images/Task4/Screenshot%20From%202026-03-02%2014-02-23.png)
 
-Login prompt showing `keyboard-interactive` asking for the verification code.
+![Screenshot From 2026-03-02 14-01-28.png](images/Task4/Screenshot%20From%202026-03-02%2014-01-28.png)
 
-![Screenshot From 2026-03-02 14-04-55.png](images/Task4/Screenshot%20From%202026-03-02%2014-04-55.png)
+- Then, we created a new file `/etc/ssh/sshd_config.d/99-2fa.conf` to setup ssh config properly for the google authenticator
+    - KbdInteractiveAuthentication - allows the server to prompt for the time-based one-time password (TOTP) during the login process
+    - PasswordAuthentication - disable simple password login
+    - AuthenticationMethods - specify what methods are used to login
 
-Successful authentication sequence including verification code entry.
+![Screenshot From 2026-03-02 13-54-50.png](images/Task4/Screenshot%20From%202026-03-02%2013-54-50.png)
 
-![Screenshot From 2026-03-02 14-12-05.png](images/Task4/Screenshot%20From%202026-03-02%2014-12-05.png)
+![Screenshot From 2026-03-02 13-53-18.png](images/Task4/Screenshot%20From%202026-03-02%2013-53-18.png)
 
-Session confirmation after successful 2FA login.
-
-![Screenshot From 2026-03-09 12-09-06.png](images/Task4/Screenshot%20From%202026-03-09%2012-09-06.png)
-
-Additional test login showing method and prompts.
+Then we configured the /etc/pam.d/sshd config file to use the google authenticator
 
 ![Screenshot From 2026-03-09 12-09-15.png](images/Task4/Screenshot%20From%202026-03-09%2012-09-15.png)
 
-Further verification of interactive login prompts.
+![Screenshot From 2026-03-09 12-09-06.png](images/Task4/Screenshot%20From%202026-03-09%2012-09-06.png)
 
+We created new key pair fot the local users, added them to `.ssh` to be available. We were then able to login to the other user account with the google authentication - using the code in the Authenticator app and password as a secure login.
 
 ---
 
@@ -314,7 +292,7 @@ Further verification of interactive login prompts.
 
 > 
 > **Requirement:** Do not modify directly the PAM files; configure the PAM system using `authselect`.
-> 
+>
 
 * **Commands & Output:**
 
