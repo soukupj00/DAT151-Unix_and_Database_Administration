@@ -14,23 +14,23 @@
 
 ### 1a: SELinux Status
 
-*
 
 **Task:** Check whether SELinux is currently enabled and make sure it is in targeted and enforcing mode.
 
 * **Commands Used:**
-* `[Insert command here]`
+* `sestatus`
 
 
 * **Terminal Output / Printout:**
 
-```bash
-[Paste output here]
 
-```
+
+![Screenshot](https://github.com/user-attachments/assets/9df951b1-b9b5-48db-925c-7ce8ddc87d74)
+
+
 
 * **Explanation:**
-* [Explain what the output means]
+Under SELinux status we see that SELinux is already enabled and under Current mode we check that we are in enforcing Mode.The loaded policy name is also set to targeted. In action SELinux consults its Targeted Policy database. It asks: "Is a process with label A allowed to perform action X on a file with label B. The enforcing mode ensures that unallowed operations will be blocked.
 
 ### 1b: Working with SELinux Users
 
@@ -39,12 +39,14 @@
 
 **Task:** List the mapping between Linux users and SELinux confined users on your computer.
 
-* **Commands & Output:**
+* **Commands used: **
+* `sudo semanage login -l`
+* **Output:**
 
-```bash
-[Paste output here]
+![Screenshot](https://github.com/user-attachments/assets/85b29502-3529-4f2d-aa75-9c928434365f)
 
-```
+* **Explanation:**
+* Any new user you create will automatically be mapped to the SELinux user listed under default (unconfined_u). SELinux doesn't interrupt daily tasks but still protects specific network services.
 
 
 
@@ -53,11 +55,13 @@
 **Task:** List all available SELinux users on your computer using `seinfo`.
 
 
-* **Commands & Output:**
-```bash
-[Paste output here]
+* **Commands used:
+* `seinfo -u`
+* 
+* ** Output:**
 
-```
+![Screenshot](https://github.com/user-attachments/assets/94a280af-fa1a-4269-afb1-cac4e9e40353)
+
 
 
 
@@ -67,10 +71,11 @@
 
 
 * **Commands & Output:**
-```bash
-[Paste output here]
 
-```
+![Screenshot](https://github.com/user-attachments/assets/a25a2764-e97b-473b-b109-20d8cba48480)
+![Screenshot](https://github.com/user-attachments/assets/1f621a33-5269-4dd0-b234-90b1594f078f)
+
+
 
 
 * **Explanation of Method:**
@@ -92,25 +97,24 @@ Domain Transitions (systemd to Apache)
 
 
 * 
-*SELinux type of systemd:* [Insert type, e.g., init_t] 
+*SELinux type of systemd:
+* init_t
 
 
 * 
-*SELinux type of Apache executable:* [Insert type] 
+*SELinux type of Apache executable:
+*httpd_exec_t
 
 
 * 
-*Is systemd allowed to run it?:* 
+*Is systemd allowed to run it?:* Yes
 
 
 * 
 **Commands & Policy Output (`sesearch`):** 
 
 
-```bash
-[Paste rule output here]
-
-```
+![Screenshot](https://github.com/user-attachments/assets/5a55911c-acd3-43de-81ed-97c64b77a937)
 
 
 
@@ -122,10 +126,9 @@ Domain Transitions (systemd to Apache)
 **Commands & Policy Output (`sesearch`):** 
 
 
-```bash
-[Paste rule output here]
 
-```
+
+![Screenshot](https://github.com/user-attachments/assets/ff7e1fa3-cb68-43c0-9419-4c17a7964f41)
 
 
 
@@ -137,10 +140,8 @@ Domain Transitions (systemd to Apache)
 **Commands & Policy Output (`sesearch`):** 
 
 
-```bash
-[Paste rule output here]
+![Screenshot](https://github.com/user-attachments/assets/72bbe979-4d9c-43d6-8bb5-2f2a87036ce9)
 
-```
 
 
 
@@ -151,11 +152,8 @@ Domain Transitions (systemd to Apache)
 * 
 **Commands & Policy Output (`sesearch`):** 
 
+![Screenshot](https://github.com/user-attachments/assets/b60b3907-7194-40e9-b562-ef8dc27425ab")
 
-```bash
-[Paste rule output here]
-
-```
 
 
 
@@ -169,10 +167,8 @@ SELinux Boolean for `public_html`
 
 
 * **Commands & Output:**
-```bash
-[Paste output here]
 
-```
+![Screenshot](https://github.com/user-attachments/assets/7366632d-d62e-4b9c-9859-65b47b3bcf3c)
 
 
 ### 1e. 
@@ -184,10 +180,9 @@ Custom Web Directory `/www`
 
 
 * **Commands & Output:**
-```bash
-[Paste output here]
 
-```
+![Screenshot](https://github.com/user-attachments/assets/2665a31b-e69e-4d8d-b64f-17ed0d1ee0c9")
+
 
 
 ---
