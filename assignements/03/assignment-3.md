@@ -38,7 +38,7 @@ Under SELinux status we see that SELinux is already enabled and under Current mo
 
 **Task:** List the mapping between Linux users and SELinux confined users on your computer.
 
-* **Commands used: **
+* **Commands used:**
 * `sudo semanage login -l`
 * **Output:**
 
@@ -54,20 +54,17 @@ Under SELinux status we see that SELinux is already enabled and under Current mo
 **Task:** List all available SELinux users on your computer using `seinfo`.
 
 
-* **Commands used:
+* **Commands used:**
 * `seinfo -u`
   
-* ** Output:**
+* **Output:**
 
 ![Screenshot](https://github.com/user-attachments/assets/94a280af-fa1a-4269-afb1-cac4e9e40353)
 
 
-
-
 * **1b.3 Restricting `su` and `sudo`:**
-* 
+  
 **Task:** Create a new Linux user and use SELinux to prevent this user from using the `su` and `sudo` tools.
-
 
 * **Commands & Output:**
 
@@ -76,11 +73,10 @@ Under SELinux status we see that SELinux is already enabled and under Current mo
 
 
 
-
 * **Explanation of Method:**
-* [Explain how SELinux capabilities were modified]
-
-
+* We change the restricted User from a unconfined_u to a user_u
+* _t (Type Enforcement)s the primary way permissions are handled
+* The tools su and sudo are setuid binaries -> when a user runs them, the process attempts to change its Effective User ID to root (UID 0) and SELinux blocks this for user_u
 
 
 ### 1c. 
@@ -94,86 +90,62 @@ Domain Transitions (systemd to Apache)
 **1c.1 Is systemd allowed to start the Apache web server?** 
 
 
-* 
-*SELinux type of systemd:
-* init_t
+* SELinux type of systemd: init_t
 
+* SELinux type of Apache executable: httpd_exec_t
 
-* 
-*SELinux type of Apache executable:
-*httpd_exec_t
+* Is systemd allowed to run it?: Yes
 
-
-* 
-*Is systemd allowed to run it?:* Yes
-
-
-* 
 **Commands & Policy Output (`sesearch`):** 
-
 
 ![Screenshot](https://github.com/user-attachments/assets/5a55911c-acd3-43de-81ed-97c64b77a937)
 
-
-
-* 
+* This rule explicitly allows the init_t domain to perform the execute operation on files labeled httpd_exec_t
+  
 **1c.2 Can the Apache web server run in domain `httpd_t`?** 
 
-
-* 
 **Commands & Policy Output (`sesearch`):** 
-
-
 
 
 ![Screenshot](https://github.com/user-attachments/assets/ff7e1fa3-cb68-43c0-9419-4c17a7964f41)
 
-
-
-* 
+* When a process in init_t executes a file of type httpd_exec_t, the resulting process should run in the httpd_t domain
+  
 **1c.3 Is systemd allowed a transition to `httpd_t`?** 
 
 
-* 
 **Commands & Policy Output (`sesearch`):** 
-
 
 ![Screenshot](https://github.com/user-attachments/assets/72bbe979-4d9c-43d6-8bb5-2f2a87036ce9)
 
-
-
-
+* This rule grants init_t the permission to actually transition the process context into httpd_t
 * 
 **1c.4 Has domain `httpd_t` access to open and read files in `/var/www/html`?** 
 
 
-* 
 **Commands & Policy Output (`sesearch`):** 
 
 ![Screenshot](https://github.com/user-attachments/assets/b60b3907-7194-40e9-b562-ef8dc27425ab)
 
-
-
-
+* This rule allows the Apache domain (httpd_t) to open and read files labeled as system web content (httpd_sys_content_t)
 
 ### 1d. 
 
 SELinux Boolean for `public_html` 
 
-* 
 **Task:** Use a SELinux boolean to allow Apache to read web content in a `public_html` directory in the home directory of users.
 
 
 * **Commands & Output:**
 
-![Screenshot](https://github.com/user-attachments/assets/7366632d-d62e-4b9c-9859-65b47b3bcf3c)
+![Screenshot](https://github.com/user-attachments/assets/8a26d8b3-b91f-4388-8682-e63d3bcb8d0f)
+
 
 
 ### 1e. 
 
 Custom Web Directory `/www` 
 
-* 
 **Task:** Create a directory `/www` and configure SELinux to allow Apache to read web content in this directory.
 
 
@@ -182,12 +154,10 @@ Custom Web Directory `/www`
 ![Screenshot](https://github.com/user-attachments/assets/2665a31b-e69e-4d8d-b64f-17ed0d1ee0c9)
 
 
-
 ---
 
 ## Task 2: Printing 
 
-* 
 **Task:** Install CUPS and all necessary dependencies, start the cups service, set it to run on startup, and add the HVL printing system.
 
 
@@ -216,14 +186,14 @@ Custom Web Directory `/www`
 
 * **Commands & Output:**
 
-![Screenshot](https://github.com/user-attachments/assets/0a9384e6-5ec9-415a-a15b-4d1cb7ae54dd)
+![Screenshot](https://github.com/user-attachments/assets/2f6873a0-2dda-45ae-b15c-abfdc9d28113")
+
 
 
 ---
 
 ## Task 3: Open Ports and Processes 
 
-* 
 **Task:** Find all ports open for tcp and udp connections on your computer, and list the processes and services that use these ports.
 
 * sudo ss -tulpn
