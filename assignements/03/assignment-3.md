@@ -1,10 +1,10 @@
 # DAT151: Assignment 3 Report
 
-**Group:** 2
+**Group:** 5
 
 **Group Members:** Soukup Jan, Fabienne Feilke
 
-**Date:** March ..., 2026
+**Date:** March 14, 2026
 
 ---
 
@@ -188,7 +188,11 @@ Custom Web Directory `/www`
 
 ![Screenshot](https://github.com/user-attachments/assets/2f6873a0-2dda-45ae-b15c-abfdc9d28113)
 
+Fabienne didn't have any issues, I had a small one with authentication setup as I didn't input the credentials at the right time, but in the end with the help of the lecturer we made it work as well. We tried multiple commands to change the credentials, which can be seen in the following screenshot.
 
+![Screenshot](images/Task2/Screenshot%20From%202026-03-02%2013-11-02.png)
+
+![Screenshot](images/Task2/Screenshot%20From%202026-03-02%2013-36-08.png)
 
 ---
 
