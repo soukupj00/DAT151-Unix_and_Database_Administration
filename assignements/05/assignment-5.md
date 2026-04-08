@@ -274,10 +274,6 @@ sudo ldapsearch -LLL -x -b "dc=h68,dc=dat151" dn
 
 The final `ldapsearch` verification confirms that the base DN, both organizational units, and the user record exist in the directory.
 
-**Verification:**
-The verification output for the LDAP tree and related checks is documented in the subtask screenshots above, especially the LDAP search output and successful entry creation screenshots.
-
-
 ---
 
 ## Task 3: SSSD
