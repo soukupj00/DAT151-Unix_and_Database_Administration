@@ -13,22 +13,64 @@
 ### a) Configure systemd journal
 *Configure systemd journal at the lab to save the logs persistent in the file system.*
 
-**Solution:**
-<!-- Add commands and explanation here (e.g., enable Storage=persistent in /etc/systemd/journald.conf) -->
+The screenshots for this step show the journald configuration workflow: copying the default file to `/etc/systemd/journald.conf`, creating a backup copy in `/root/origs/`, and editing the config file.
+
+![journald config copy and edit](images/task1/Screenshot%20From%202026-03-16%2012-14-52.png)
+![journald config open in editor](images/task1/Screenshot%20From%202026-03-16%2012-15-11.png)
+![backup directory creation](images/task1/Screenshot%20From%202026-03-16%2012-14-31.png)
+
+The configuration was applied by copying the default file, editing it, and restarting the service. After that, `journalctl --flush` was used so the current journal was written into the persistent directory, and `ls -la /var/log/journal/` confirmed that the journal directory existed.
+
+```bash
+sudo cp /usr/lib/systemd/journald.conf /etc/systemd/journald.conf
+sudo nano /etc/systemd/journald.conf
+sudo systemctl restart systemd-journald
+sudo journalctl --flush
+sudo ls -la /var/log/journal/
+```
+
+![journal directory and tmpfiles setup](images/task1/Screenshot%20From%202026-03-16%2012-18-28.png)
+![journal flush and persistent path check](images/task1/Screenshot%20From%202026-03-16%2012-21-18.png)
+
+This means the system will keep journal entries across reboots instead of storing them only in memory.
 
 
 ### b) Protect journal logs
 *Protect the journal logs from unnoticed alteration by enabling the Seal feature and create a sealing key. Verify the logs and prove that the logs are sealed. The verification output will show a time interval that is not sealed.*
 
-**Solution:**
-<!-- Add commands to enable Seal=yes, create key, and verify logs (e.g., journalctl --setup-keys, journalctl --verify) -->
+The screenshot below shows the sealing setup and verification step. After restarting `systemd-journald`, `journalctl --setup-keys` was run to generate the sealing key, and `journalctl --verify` was used to check the journal files.
+
+![journal sealing and verification](images/task1/Screenshot%20From%202026-03-16%2012-17-14.png)
+
+```bash
+sudo systemctl restart systemd-journald
+sudo journalctl --setup-keys
+sudo journalctl --verify
+```
+
+The output shows a warning that the build was compiled without forward-secure sealing support, but the verification still reports `PASS` for the journal files that were checked. That is the verification output used to demonstrate the integrity of the stored journal.
 
 
 ### c) Syslog local5 facility
 *The syslog facility names “local0” to “local7” are used for local custom messages defined by an administrator. Create your own configuration that saves only the critical level and information level messages from the local5 facility to a file local5 in the /var/log directory. Test your configuration using the logger command with specific messages. Look under the /var/log directory and verify that the messages you added are saved at the correct location.*
 
-**Solution:**
-<!-- Add rsyslog.conf changes, logger commands, and output from /var/log/local5 -->
+The screenshots show creating `/etc/rsyslog.d/local5.conf` and editing the file with a custom rule. The rule writes only `local5.info` and `local5.crit` messages to `/var/log/local5`.
+
+![rsyslog local5 setup commands](images/task1/Screenshot%20From%202026-03-16%2012-41-25.png)
+![rsyslog local5 rule](images/task1/Screenshot%20From%202026-03-16%2012-41-44.png)
+
+```bash
+sudo nano /etc/rsyslog.d/local5.conf
+sudo systemctl restart rsyslog
+logger -p local5.info "Task 1c: This is an INFO message."
+logger -p local5.crit "Task 1c: This is a CRITICAL message."
+logger -p local5.err "Task 1c: This is an ERROR message and should be ignored."
+sudo cat /var/log/local5
+```
+
+![local5 logger test results](images/task1/Screenshot%20From%202026-03-16%2013-37-12.png)
+
+The configuration line `local5.=info;local5.=crit    /var/log/local5` means that only messages from facility `local5` with severity `info` or `crit` are stored in that file. The `err` message does not match the rule and is therefore not written there. The screenshot of `/var/log/local5` shows the `INFO` and `CRITICAL` messages in the correct location.
 
 
 ---
@@ -40,8 +82,21 @@
 ### Installation and Configuration
 *Document your configurations clearly, include your LDIF files in your report, and explain how user records were added to your server.*
 
-**Solution:**
-<!-- Explain installation steps (packages: openldap-clients, openldap-servers; service: slapd) -->
+We installed OpenLDAP server/client packages.
+
+![OpenLDAP installation](images/task2/Screenshot%20From%202026-03-23%2012-25-28.png)
+
+Then we enabled and verified `slapd`.
+
+![slapd enable and status](images/task2/Screenshot%20From%202026-03-23%2012-25-38.png)
+
+```bash
+sudo dnf install openldap-clients openldap-servers
+sudo systemctl enable --now slapd
+sudo systemctl status slapd
+```
+
+`openldap-clients` provides the LDAP client tools such as `ldapadd`, `ldapmodify`, and `ldapsearch`, while `openldap-servers` installs the server daemon `slapd`. Enabling the service makes the LDAP server start automatically on boot.
 
 
 ### DN Suffix and Manager Password
@@ -49,23 +104,83 @@
 
 **Base DN LDIF (`basedn.ldif`):**
 ```ldif
-<!-- Paste content of basedn.ldif here -->
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: dc=h68,dc=dat151
+replace: olcRootDN
+olcRootDN: cn=Manager,dc=h68,dc=dat151
 ```
 
 **Manager Config LDIF (`manager.ldif`):**
 ```ldif
-<!-- Paste content of manager.ldif here -->
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+add: olcRootPW
+olcRootPW: {SSHA}<hash generated with slappasswd>
+add: olcAccess
+olcAccess: to * by dn="cn=Manager,dc=h68,dc=dat151" write by self write by * read
 ```
 
-**Explanation:**
-<!-- Explain the changes made (RootDN, Suffix, Password hash creation) -->
+First we create `basedn.ldif`, run `ldapmodify`, and inspect the initial error.
+
+![basedn initial modify error](images/task2/Screenshot%20From%202026-03-23%2012-27-24.png)
+
+![basedn initial draft](images/task2/Screenshot%20From%202026-03-23%2012-27-39.png)
+
+Then we generate manager password hash and draft `manager.ldif`.
+
+![manager password hash generation](images/task2/Screenshot%20From%202026-03-23%2012-28-08.png)
+
+![manager ldif draft](images/task2/Screenshot%20From%202026-03-23%2012-28-36.png)
+
+Then we fix LDIF separators/format and apply updated suffix/root DN.
+
+![base DN and manager configuration](images/task2/Screenshot%20From%202026-03-23%2012-29-03.png)
+
+![basedn corrected content](images/task2/Screenshot%20From%202026-03-23%2012-30-55.png)
+
+![basedn apply success](images/task2/Screenshot%20From%202026-03-23%2012-30-46.png)
+
+We apply manager permissions and password, then replace root password using `fixpw.ldif`.
+
+![manager ldif with placeholders](images/task2/Screenshot%20From%202026-03-23%2012-31-18.png)
+
+![manager ldif with real hash](images/task2/Screenshot%20From%202026-03-23%2012-31-53.png)
+
+![manager apply success](images/task2/Screenshot%20From%202026-03-23%2012-32-12.png)
+
+![new manager hash for rootPW replace](images/task2/Screenshot%20From%202026-03-23%2012-37-11.png)
+
+![fixpw ldif content](images/task2/Screenshot%20From%202026-03-23%2012-40-43.png)
+
+![fixpw apply](images/task2/Screenshot%20From%202026-03-23%2012-40-34.png)
+
+The changes were applied with `ldapmodify -Y EXTERNAL -H ldapi:/// -f basedn.ldif` and `ldapmodify -Y EXTERNAL -H ldapi:/// -f manager.ldif`. This updates the live OpenLDAP configuration database under `cn=config` without editing the backend files by hand.
 
 
 ### Schemas
 *Install necessary schemas (COSINE, NIS).*
 
-**Solution:**
-<!-- Commands used to install schemas: cosine.ldif, nis.ldif -->
+We run COSINE/NIS schema add commands (output shows duplicate attributes, i.e., already loaded).
+
+![schema add output](images/task2/Screenshot%20From%202026-03-23%2012-33-03.png)
+
+Then we verify schema entries with `ldapsearch`.
+
+![schema verification output](images/task2/Screenshot%20From%202026-03-23%2012-35-08.png)
+
+After that we add `inetorgperson` schema required for user object classes.
+
+![inetorgperson schema add](images/task2/Screenshot%20From%202026-03-23%2012-52-55.png)
+
+```bash
+sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif
+sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif
+sudo ldapsearch -LLL -Y EXTERNAL -H ldapi:/// -b "cn={2}nis,cn=schema,cn=config"
+```
+
+The `ldapsearch` output shows that the schema entries are present in the configuration database, including `core`, `cosine`, and `nis`.
 
 
 ### Create and Fill User Records Database
@@ -73,15 +188,94 @@
 
 **Database DN LDIF (`top.ldif`):**
 ```ldif
-<!-- Paste content of top.ldif here -->
+dn: dc=h68,dc=dat151
+dc: h68
+objectClass: top
+objectClass: domain
 ```
 
 **User/Group Creation:**
-<!-- Explain how users/groups were created. Include LDIFs or commands used (ldapadd, etc). -->
+The database was filled in two steps. First, the organizational units for groups and people were created, and then the actual user entry was added under `ou=People`.
+
+**Organizational Units (`ou.ldif`):**
+```ldif
+dn: ou=Group,dc=h68,dc=dat151
+ou: Group
+objectClass: organizationalUnit
+
+dn: ou=People,dc=h68,dc=dat151
+ou: People
+objectClass: organizationalUnit
+```
+
+**User Entry (`justuser.ldif`):**
+```ldif
+dn: uid=testuser,ou=People,dc=h68,dc=dat151
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: testuser
+sn: User
+givenName: Test
+cn: Test User
+displayName: Test User
+uidNumber: 2000
+gidNumber: 2000
+userPassword: {SSHA}<hash generated with slappasswd>
+gecos: Test User
+loginShell: /bin/bash
+homeDirectory: /home/testuser
+```
+
+**Group Entry:**
+```ldif
+dn: cn=testgroup,ou=Group,dc=h68,dc=dat151
+objectClass: posixGroup
+cn: testgroup
+gidNumber: 2000
+```
+
+We prepare database entry and verify base DN query.
+
+![top ldif content](images/task2/Screenshot%20From%202026-03-23%2012-33-34.png)
+
+![base dn ldapsearch verification](images/task2/Screenshot%20From%202026-03-23%2012-41-05.png)
+
+We set LDAP client defaults and create organizational units.
+
+![ldap client defaults file edit](images/task2/Screenshot%20From%202026-03-23%2012-44-32.png)
+
+![ou ldif content](images/task2/Screenshot%20From%202026-03-23%2012-44-56.png)
+
+![adding organizational units](images/task2/Screenshot%20From%202026-03-23%2012-45-18.png)
+
+We first attempted  combined `userdata.ldif`, then switched to corrected `justuser.ldif`.
+
+![userdata ldif draft](images/task2/Screenshot%20From%202026-03-23%2012-47-15.png)
+
+![user password hash generation](images/task2/Screenshot%20From%202026-03-23%2012-47-35.png)
+
+![userdata add error (objectClass syntax)](images/task2/Screenshot%20From%202026-03-23%2012-47-59.png)
+
+![justuser ldif content](images/task2/Screenshot%20From%202026-03-23%2012-52-43.png)
+
+![justuser add success](images/task2/Screenshot%20From%202026-03-23%2012-54-28.png)
+
+Finally we opened the LDAP service in firewall.
+
+![firewall ldap service open](images/task2/Screenshot%20From%202026-03-23%2012-48-33.png)
+
+```bash
+sudo ldapadd -D "cn=Manager,dc=h68,dc=dat151" -x -W -f top.ldif
+sudo ldapadd -D "cn=Manager,dc=h68,dc=dat151" -x -W -f ou.ldif
+sudo ldapadd -D "cn=Manager,dc=h68,dc=dat151" -x -W -f justuser.ldif
+sudo ldapsearch -LLL -x -b "dc=h68,dc=dat151" dn
+```
+
+The final `ldapsearch` verification confirms that the base DN, both organizational units, and the user record exist in the directory.
 
 **Verification:**
-<!-- Output of ldapsearch demonstrating the user/group exists -->
-<!-- Example: ldapsearch -LLL -x -b "dc=...,dc=..." -->
+The verification output for the LDAP tree and related checks is documented in the subtask screenshots above, especially the LDAP search output and successful entry creation screenshots.
 
 
 ---
@@ -93,7 +287,6 @@
 ### SSSD Configuration
 *Configure `/etc/sssd/sssd.conf`, use `authselect` to select the PAM profile for SSSD, and enable `with-mkhomedir`.*
 
-**Solution:**
 <!-- Content of /etc/sssd/sssd.conf and authselect commands usage -->
 
 
@@ -108,7 +301,6 @@
 ### LDAP Access Control
 *With login working from the client using SSSD, the LDAP access rules should be restricted further by modifying the LDAP `olcAccess` parameter. See e.g. the man pages slapd-config(5) and slapd.access(5).*
 
-**Solution:**
 <!-- LDIF or commands used to modify olcAccess to restrict access -->
 
 
@@ -134,7 +326,6 @@
 ### KDC Configuration
 *Configure KDC, create the database, and enable services (`kadmin`, `krb5kdc`). Create the KDC database with a secure password.*
 
-**Solution:**
 <!-- Explanations and commands for KDC setup -->
 
 
