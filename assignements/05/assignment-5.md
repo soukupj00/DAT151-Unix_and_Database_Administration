@@ -283,6 +283,11 @@ The final `ldapsearch` verification confirms that the base DN, both organization
 ### SSSD Configuration
 *Configure `/etc/sssd/sssd.conf`, use `authselect` to select the PAM profile for SSSD, and enable `with-mkhomedir`.*
 
+![Screenshot](https://github.com/user-attachments/assets/16c08c36-6390-44e9-9a15-3bd25a68c173)
+
+![Screenshot](https://github.com/user-attachments/assets/da1a3e00-e016-41de-949f-08318e0ab1ad)
+
+
 <!-- Content of /etc/sssd/sssd.conf and authselect commands usage -->
 
 
