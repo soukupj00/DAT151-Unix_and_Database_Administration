@@ -288,7 +288,7 @@ The final `ldapsearch` verification confirms that the base DN, both organization
 ![Screenshot](https://github.com/user-attachments/assets/da1a3e00-e016-41de-949f-08318e0ab1ad)
 
 
-<!-- Content of /etc/sssd/sssd.conf and authselect commands usage -->
+
 
 
 ### Login Verification (Client)
@@ -327,26 +327,56 @@ The final `ldapsearch` verification confirms that the base DN, both organization
 ### KDC Configuration
 *Configure KDC, create the database, and enable services (`kadmin`, `krb5kdc`). Create the KDC database with a secure password.*
 
-<!-- Explanations and commands for KDC setup -->
+At first we installed the krb5-server and the krb5-workstation.
+![Screenshot](https://github.com/user-attachments/assets/6a7eca28-e500-4c29-b79d-61e2b17453ca)
+
+We Configured the Kerberos Realm to use our Domain DATALAB.HVL.
+![Screenshot](https://github.com/user-attachments/assets/e7b59d64-2321-4c4a-b598-e507e621f4d4)
+![Screenshot](https://github.com/user-attachments/assets/66e89e53-e51c-4f3a-b2ae-954ac8ac7153)
+
+Then we createt our database
+![Screenshot](https://github.com/user-attachments/assets/057944d6-facd-44c5-be4d-2cbade75f516)
+-s flag creates a "stash file" so the KDC can start automatically without you typing the master password every time it boots.
+-r flag allows us to explicitly specify the name of the Kerberos realm.
+
+We need the firewall to open the ports that kerberus and kadmin are mapped to.
+![Screenshot](https://github.com/user-attachments/assets/25e3f571-434c-4d54-b63e-e5c50eb75bca)
+
+In the Access Control List we give the admin full permission to add, delete, or modify other users (principals).
+![Screenshot](https://github.com/user-attachments/assets/7d0148a9-13ad-47a1-aea8-2fe0821b6ff7)
+
+We use this command to edit the Access Control List:
+![Screenshot](https://github.com/user-attachments/assets/54f9a33f-5fab-4f43-ae80-41428dd76c36)
+
 
 
 ### Principals
 *Create necessary principals (User, Admin, Host, Service). Since only root can run kadmin.local, and the default principal of root is “root/admin”, create an administrator principal “root/admin”.*
 
 **Principals Created:**
-*   User: `...` (e.g., student@REALM)
-*   Admin: `...` (e.g., root/admin@REALM)
-*   Host: `...` (e.g., host/hostname@REALM)
+*   User: testuser@DATALAB.HVL
+*   Admin:root/admin@DATALAB.HVL
+*   Host:host/hostname68.datalab@DATALAB.HVL)
 
 **Commands:**
-<!-- Commands used to create principals (kadmin.local addprinc ...) -->
+![Screenshot](https://github.com/user-attachments/assets/439bbc93-db4b-4c1b-bc16-d88745a9727a)
 
+With ktadd we export the Host Principal into a keytab file. This is necessary for an authentification without a password.
 
 ### SSH with Kerberos
 *Configure SSH to use Kerberos. Verify login in both directions.*
 
 **Configuration Changes:**
-<!-- Changes to /etc/ssh/sshd_config (GSSAPIAuthentication yes, etc.) and /etc/krb5.conf -->
+![Screenshot](https://github.com/user-attachments/assets/31df3ffe-462c-40e6-9122-7bfa4f23303f)
+![Screenshot](https://github.com/user-attachments/assets/727d5231-3c94-4744-ba3d-f4e1d38d3938)
+![Screenshot](https://github.com/user-attachments/assets/43994574-19d1-40e5-9836-b9e0f3af6ae0)
+![Screenshot](https://github.com/user-attachments/assets/130456e2-ebf8-4ca2-bd58-0b9a77d3438a)
+![Screenshot](https://github.com/user-attachments/assets/6a8889e7-678d-47e0-8b01-16612a0c81f1)
+
+
+
+
 
 **Verification:**
-<!-- Output showing successful SSH login using Kerberos tickets (klist output, ssh -v output showing gssapi-with-mic) -->
+![Screenshot](https://github.com/user-attachments/assets/ad0ed468-a8d7-449f-992c-dfb6cb1b7ccf)
+
