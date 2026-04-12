@@ -283,10 +283,19 @@ The final `ldapsearch` verification confirms that the base DN, both organization
 ### SSSD Configuration
 *Configure `/etc/sssd/sssd.conf`, use `authselect` to select the PAM profile for SSSD, and enable `with-mkhomedir`.*
 
+We installed the oddjob package.
+
+![Screenshot](https://github.com/user-attachments/assets/3074f39e-7b6a-4f9f-8814-8d5a0eddec51)
+- oddjob-mkhomedir automatically creates /home/username when an LDAP user logs in for the first time
+- authselect rewires our systems PAM to point towards SSSD
+  
+At first we created the config file on the client.
+
 ![Screenshot](https://github.com/user-attachments/assets/16c08c36-6390-44e9-9a15-3bd25a68c173)
 
-![Screenshot](https://github.com/user-attachments/assets/da1a3e00-e016-41de-949f-08318e0ab1ad)
+We set  file permissions so that only the root user  can read or write to the file.
 
+![Screenshot](https://github.com/user-attachments/assets/da1a3e00-e016-41de-949f-08318e0ab1ad)
 
 
 
@@ -295,28 +304,62 @@ The final `ldapsearch` verification confirms that the base DN, both organization
 *The client computer should be a different computer than the LDAP host, and the user should not exist on the client prior to log in. You must must a add screen shot to the report of a working log in on the client: `su - <some_user>` (To be run on the client, NOT the LDAP host).*
 
 **Screenshot:**
-<!-- Paste screenshot or terminal output of successful login -->
-![Login Verification](path/to/image.png)
+
+![Screenshot](https://github.com/user-attachments/assets/ea982210-eced-48d8-8ae1-497d0d8958d7)
+
 
 
 ### LDAP Access Control
 *With login working from the client using SSSD, the LDAP access rules should be restricted further by modifying the LDAP `olcAccess` parameter. See e.g. the man pages slapd-config(5) and slapd.access(5).*
 
-<!-- LDIF or commands used to modify olcAccess to restrict access -->
+![Screenshot](https://github.com/user-attachments/assets/8b1dc392-87f4-4d1a-944d-008aeb818180)
+
+
+
 
 
 ### LDAPS Configuration
 *Configure the LDAP server to use the encrypted `ldaps` channel. Create/Sign certificates, configure standard hostname resolution (/etc/hosts), and update LDAP configuration.*
 
 **Certificate Setup:**
-<!-- Explain how certificates were created/signed (openssl, CA setup) -->
+We configurated the LDAP Server Configuration as follows: 
+
+![Screenshot](https://github.com/user-attachments/assets/3a1c919f-b381-4ee2-87af-cf142185cb0c)
+
+We mapped he IP address 10.0.0.68 to the name host68.datalab so that the SSL certificate's Common Name (CN) would match the connection string. We did the same for 10.0.0.67.
+
+![Screenshot](https://github.com/user-attachments/assets/0ab6054c-9160-45eb-8cf8-8515d069fc68)
+
+On the server we created our own CA (myca.crt). This acts as the "Master Key" that will be used to verify the server's identity.
+
+![Screenshot](https://github.com/user-attachments/assets/aa3acaf8-7c2e-4ae4-8d40-3ee2d5e7b36a)
+
+
+This clients Certificate Authority (CA):
+
+![Screenshot](https://github.com/user-attachments/assets/0f362825-45b5-486d-92c8-d7323b3a9794)
+
+The client will use the myca.crt file we just created and the servers certificate that the conection is save.
 
 **LDAP Cert Configuration:**
-<!-- LDIF used to add olcTLSCertificateFile and olcTLSCertificateKeyFile to cn=config -->
+
+We created /etc/openldap/certs as a standard, secure location for certificate files. Then we move the certificates created in the previous step into the file. We also changed the ownership of the files to the ldap user. With chmod 600  we make sure, that only the LDAP service can read the private key, protecting the server from being impersonated.
+
+![Screenshot](https://github.com/user-attachments/assets/597ca446-a5d1-42aa-93f4-9d3fca21ffe3)
+
+We told the LDAP server  to use the specific identity files we created  by modifying the cn=config tree.
+
+![Screenshot](https://github.com/user-attachments/assets/380b626e-90e0-4608-a9d4-8aaba36c3392)
+
+After the LDAP server was configured to use SSL/TLS, the network firewall needed to be updated to allow traffic on the secure port.
+
+![Screenshot](https://github.com/user-attachments/assets/c9bd5a56-11ec-4b85-a682-fdb05d576b4c)
 
 **SSSD Update:**
-<!-- Changes to sssd.conf to use ldaps URI and CA certificate -->
 
+![Screenshot](https://github.com/user-attachments/assets/07cc0a4a-9bc3-4580-a726-2a58c4af0b8a)
+
+This forces the client to connect via port 636 and initiate an SSL/TLS handshake immediately.And it tells SSSD to use the myca.crt file we created earlyer to verify the server’s identity.
 
 ---
 
@@ -328,24 +371,32 @@ The final `ldapsearch` verification confirms that the base DN, both organization
 *Configure KDC, create the database, and enable services (`kadmin`, `krb5kdc`). Create the KDC database with a secure password.*
 
 At first we installed the krb5-server and the krb5-workstation.
+
 ![Screenshot](https://github.com/user-attachments/assets/6a7eca28-e500-4c29-b79d-61e2b17453ca)
 
 We Configured the Kerberos Realm to use our Domain DATALAB.HVL.
+
 ![Screenshot](https://github.com/user-attachments/assets/e7b59d64-2321-4c4a-b598-e507e621f4d4)
+
 ![Screenshot](https://github.com/user-attachments/assets/66e89e53-e51c-4f3a-b2ae-954ac8ac7153)
 
 Then we createt our database
+
 ![Screenshot](https://github.com/user-attachments/assets/057944d6-facd-44c5-be4d-2cbade75f516)
+
 -s flag creates a "stash file" so the KDC can start automatically without you typing the master password every time it boots.
 -r flag allows us to explicitly specify the name of the Kerberos realm.
 
 We need the firewall to open the ports that kerberus and kadmin are mapped to.
+
 ![Screenshot](https://github.com/user-attachments/assets/25e3f571-434c-4d54-b63e-e5c50eb75bca)
 
 In the Access Control List we give the admin full permission to add, delete, or modify other users (principals).
+
 ![Screenshot](https://github.com/user-attachments/assets/7d0148a9-13ad-47a1-aea8-2fe0821b6ff7)
 
 We use this command to edit the Access Control List:
+
 ![Screenshot](https://github.com/user-attachments/assets/54f9a33f-5fab-4f43-ae80-41428dd76c36)
 
 
@@ -367,6 +418,7 @@ With ktadd we export the Host Principal into a keytab file. This is necessary fo
 *Configure SSH to use Kerberos. Verify login in both directions.*
 
 **Configuration Changes:**
+
 ![Screenshot](https://github.com/user-attachments/assets/31df3ffe-462c-40e6-9122-7bfa4f23303f)
 ![Screenshot](https://github.com/user-attachments/assets/727d5231-3c94-4744-ba3d-f4e1d38d3938)
 ![Screenshot](https://github.com/user-attachments/assets/43994574-19d1-40e5-9836-b9e0f3af6ae0)
@@ -378,5 +430,6 @@ With ktadd we export the Host Principal into a keytab file. This is necessary fo
 
 
 **Verification:**
+
 ![Screenshot](https://github.com/user-attachments/assets/ad0ed468-a8d7-449f-992c-dfb6cb1b7ccf)
 
