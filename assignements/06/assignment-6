@@ -12,6 +12,9 @@
 
 ## Task 2: NFS
 
+Before starting we installed nfs-utils on Client and Server
+sudo dnf install nfs-utils -y
+
 ## Task 3: Custom PAM profile for pam_mount
 
 ## Task 4: Decoding PAM rules
