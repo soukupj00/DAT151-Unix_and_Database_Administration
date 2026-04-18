@@ -30,7 +30,7 @@ Describe and explain each step taken.
 
 ### a) Initial disk state and partition creation
 
-We found our 10GiB Partition. It it the partition sda4.
+We found our 10GiB Partition (sda4).
 
 ![Screenshot](https://github.com/user-attachments/assets/14263d2c-aa3c-4091-a197-6d27007d6434)
 
@@ -52,9 +52,9 @@ And checked for costum .mount files:
 ```bash
 ls /etc/systemd/system/*.mount
 ```
-To have a Backup we saved the first 100MiB before clearing the filesystem.
-We used the dd tool to write zeros (/dev/zero) to the first 100MiB of the partition.
-After we deleted the Partition and returned the free space
+To have a backup, we saved the first 100MiB before clearing the filesystem.
+We used the dd tool to write zeros (/dev/zero) to the first 100MiB of the Partition.
+In our next step we deleted the partition and returned the free space.
 
 ![Screenshot](https://github.com/user-attachments/assets/e8306d50-dda2-4b20-9b7d-132454376850)
 
@@ -75,7 +75,7 @@ We createt a logical volume. Formated it and mounted it.
 ### c) Extend VG with remaining 5GiB
 
 We createt a new partition of the remaining free space and extended the VG with this new partition. 
-In the end we varify that the Volume Group has been extendet.
+In the end we varify that the volume group has been extendet.
 
 
 ![Screenshot](https://github.com/user-attachments/assets/3ebeca66-378e-4363-a50d-d41a61205ac7)
@@ -99,7 +99,7 @@ Observe, you are not asked to configure your system to mount home directories on
 ### a) Server configuration
 
 
-We installed the necessary packages on server and client and created the directory. Then we moved the user home directory to /share/home
+We installed the necessary packages on both the server and the client. Next, we  created the directory and moved the user home directory to /share/home.
 
 ```bash
 sudo dnf install nfs-utils -y
@@ -113,25 +113,22 @@ sudo dnf install nfs-utils -y
 
 
 Opening   `nfs`, `rpc-bind`, and `mountd` services in firewall:
-![Screenshot](https://github.com/user-attachments/assets/8b0c393e-0af2-435c-813d-04a0a2533b16):
+![Screenshot](https://github.com/user-attachments/assets/8b0c393e-0af2-435c-813d-04a0a2533b16)
 
 Configure export rule for client IP in `/etc/exports`:
 
 ![Screenshot](https://github.com/user-attachments/assets/8e74b664-e0fe-4ee9-a07f-8c1920ddf06c)
 
 
-
-
-We enable the `nfs-server` and run `exportfs -rav`:
+We enable the `nfs-server` and run `exportfs -rav` so our changes will be considered.
 
 ![Screenshot](https://github.com/user-attachments/assets/61d8ff7a-e7a3-4089-b0f8-8091635ddd2e)
 
 
-
-
-
-
 ### b) Modify LDAP User
+
+We used an LDIF file to update the homeDirectory pointer in the LDAP database.
+
 ![Screenshot](https://github.com/user-attachments/assets/ffd4527a-530b-4468-af44-7222a8fd06ef)
 
 
@@ -147,16 +144,6 @@ Insert missing pic from Client.
 
 
 
-
-### b) Modify LDAP User
-
-*Modify LDAP user so `homeDirectory` points to `/share/home/<user>`.*
-
-Placeholder for final write-up and screenshots:
-
-- LDIF used for `homeDirectory` replacement
-- `ldapmodify` command
-- `ldapsearch` verification
 
 
 
