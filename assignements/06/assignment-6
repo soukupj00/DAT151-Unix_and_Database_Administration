@@ -32,7 +32,7 @@ Describe and explain each step taken.
 
 *Document the initial disk state and creation of a 5GiB partition used for LVM.*
 
-![Screenshot](assignements/06/images/task1/Screenshot%20From%202026-04-13%2012-27-59.png)
+![Screenshot](images/task1/Screenshot%20From%202026-04-13%2012-27-59.png)
 
 
 - Creation of `/dev/sda7` (5GiB)
