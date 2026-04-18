@@ -137,8 +137,27 @@ We used an LDIF file to update the homeDirectory pointer in the LDAP database.
 
 ### c) Client configuration and verification
 
+First we createt the mount point and then we edited the /etc/fstab to ensure the home directories will still be there after a reboot.
+
+![Screenshot](https://github.com/user-attachments/assets/1ce92779-583a-4778-b3cd-a4ce5d190a79)
+
+![Screenshot](https://github.com/user-attachments/assets/ab62ca13-7bc3-49a5-b9ac-34435d6bbeba)
+
+
+![Screenshot](https://github.com/user-attachments/assets/4c522325-197c-4a47-a0f1-6e6d6536155e)
+
+We stop blocking the network home folders, clear the sssd cache and restart the ssd service.
+
+![Screenshot](https://github.com/user-attachments/assets/791d0ad3-0380-4bff-8ec8-fd7d34033993)
+
+
+
 For verification we created a testfile on the client and read the same file on the server.
-Insert missing pic from Client.
+
+![Screenshot](https://github.com/user-attachments/assets/5058658e-0bf5-4601-87a0-96c61c1ae6d5)
+
+
+
 
 ![Screenshot](https://github.com/user-attachments/assets/69d5e047-210d-4842-a368-80ad7c0c99f3)
 
