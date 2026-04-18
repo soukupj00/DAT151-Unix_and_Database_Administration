@@ -30,13 +30,34 @@ Describe and explain each step taken.
 
 ### a) Initial disk state and partition creation
 
-*Document the initial disk state and creation of a 5GiB partition used for LVM.*
+We found our Partition with about 10GB of free space. It it the partition sda4.
 
 ![Screenshot](images/task1/Screenshot%20From%202026-04-13%2012-27-59.png)
 
+To have a Backup we saved the first 100MiB before clearing the filesystem.
+We used the dd tool to write zeros (/dev/zero) to the first 100MiB of the partition.
 
-- Creation of `/dev/sda7` (5GiB)
-- Verification that partition exists
+![Screenshot](https://github.com/user-attachments/assets/e8306d50-dda2-4b20-9b7d-132454376850)
+
+We createt a physical partition of 5GiB to leave 5GiB of empty space.
+
+![Screenshot](https://github.com/user-attachments/assets/2048500d-bccb-42b7-894d-bdbdaac5cca8)
+
+We sett up the physical partition as a LVM physical volume (PV) and created a logical volume group (VG).
+
+![Screenshot](https://github.com/user-attachments/assets/b1ee80f9-2e79-4526-89eb-28f81e466537)
+
+We createt a logica volume.
+
+![Screenshot](https://github.com/user-attachments/assets/6c6bdb23-373e-458f-8ddf-d3cab592de82)
+
+We createt a new partition of the remaining free space and extended the VG with this new partition. 
+In the end we varify that the Volume Group has been extendet.
+
+![Screenshot](ttps://github.com/user-attachments/assets/9d11c179-6aa2-4db9-93f4-107af31d0f12)
+
+
+
 
 ### b) Create PV, VG and LVs
 
