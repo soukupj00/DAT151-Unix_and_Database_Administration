@@ -32,9 +32,8 @@ Describe and explain each step taken.
 
 *Document the initial disk state and creation of a 5GiB partition used for LVM.*
 
-Placeholder for final write-up and screenshots:
+![Screenshot](/home/ffeilke/Pictures/Screenshots/Assignment6/task1/Screenshot From 2026-04-13 12-18-41.png) 
 
-- Initial `lsblk` / `fdisk -l` before changes
 - Creation of `/dev/sda7` (5GiB)
 - Verification that partition exists
 
