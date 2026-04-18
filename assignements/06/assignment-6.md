@@ -30,12 +30,31 @@ Describe and explain each step taken.
 
 ### a) Initial disk state and partition creation
 
-We found our Partition with about 10GB of free space. It it the partition sda4.
+We found our 10GiB Partition. It it the partition sda4.
+
+![Screenshot](https://github.com/user-attachments/assets/14263d2c-aa3c-4091-a197-6d27007d6434)
+
 
 ![Screenshot](images/task1/Screenshot%20From%202026-04-13%2012-27-59.png)
 
+We unmounted sda4:
+```bash
+unmount /dev/sda4
+```
+
+We also checked the /etc/fstab file:
+
+```bash
+sudo vim /etc/fstab
+```
+And checked for costum .mount files:
+
+```bash
+ls /etc/systemd/system/*.mount
+```
 To have a Backup we saved the first 100MiB before clearing the filesystem.
 We used the dd tool to write zeros (/dev/zero) to the first 100MiB of the partition.
+After we deleted the Partition and returned the free space
 
 ![Screenshot](https://github.com/user-attachments/assets/e8306d50-dda2-4b20-9b7d-132454376850)
 
@@ -43,55 +62,24 @@ We createt a physical partition of 5GiB to leave 5GiB of empty space.
 
 ![Screenshot](https://github.com/user-attachments/assets/2048500d-bccb-42b7-894d-bdbdaac5cca8)
 
-We sett up the physical partition as a LVM physical volume (PV) and created a logical volume group (VG).
+### b) Create PV, VG and LVs
+
+We set up the physical partition as a LVM physical volume (PV) and created a logical volume group (VG).
 
 ![Screenshot](https://github.com/user-attachments/assets/b1ee80f9-2e79-4526-89eb-28f81e466537)
 
-We createt a logica volume.
+We createt a logical volume. Formated it and mounted it.
 
 ![Screenshot](https://github.com/user-attachments/assets/6c6bdb23-373e-458f-8ddf-d3cab592de82)
+
+### c) Extend VG with remaining 5GiB
 
 We createt a new partition of the remaining free space and extended the VG with this new partition. 
 In the end we varify that the Volume Group has been extendet.
 
-![Screenshot](ttps://github.com/user-attachments/assets/9d11c179-6aa2-4db9-93f4-107af31d0f12)
 
+![Screenshot](https://github.com/user-attachments/assets/3ebeca66-378e-4363-a50d-d41a61205ac7)
 
-
-
-### b) Create PV, VG and LVs
-
-*Set up the LVM stack and create logical volumes.*
-
-Placeholder for final write-up and screenshots:
-
-- `pvcreate /dev/sda7`
-- `vgcreate vg_czechia /dev/sda7`
-- `lvcreate` for `lv_1` and `lv_2`
-- Verification using `pvs`, `vgs`, `lvs`/`lvdisplay`
-
-### c) Filesystem, mount, and data verification
-
-*Create filesystems on the LVs, mount them, and store files.*
-
-Placeholder for final write-up and screenshots:
-
-- `mkfs.ext4` on both LVs
-- Mount points and `mount`/`lsblk` verification
-- Test files created and read back
-
-### d) Extend VG with remaining 5GiB
-
-*Create another partition from remaining free space and extend VG by 5GiB.*
-
-Placeholder for final write-up and screenshots:
-
-- Creation of `/dev/sda8`
-- `pvcreate /dev/sda8`
-- `vgextend vg_czechia /dev/sda8`
-- `vgdisplay`/`vgs` proof of increased VG size
-
----
 
 ## Task 2: NFS
 
@@ -107,19 +95,60 @@ For your information, the system can be configured to mount the home directory o
 Automatic mounting of home directories can be achieved e.g. through PAM by the pam_mount(3) module, or by an auto mounting system. Several auto mounting systems are available for Linux, e.g. using a systemd autmount unit, or the autofs daemon.
 Observe, you are not asked to configure your system to mount home directories on user login. It is sufficient in this task to mount all home directories at boot.
 
+
 ### a) Server configuration
 
-*Install NFS packages, create export directory, configure `/etc/exports`, and open firewall.*
 
-Placeholder for final write-up and screenshots:
+We installed the necessary packages on server and client and created the directory. Then we moved the user home directory to /share/home
 
-- Install `nfs-utils`
-- Create `/share/home`
-- Configure export rule for client IP in `/etc/exports`
-- Open `nfs`, `rpc-bind`, and `mountd` services in firewall
-- Enable/start `nfs-server` and run `exportfs -rav`
+```bash
+sudo dnf install nfs-utils -y
+```
 
-### b) LDAP homeDirectory update
+![Screenshot](https://github.com/user-attachments/assets/aaffa243-e8fe-4348-a6dd-0b5482f49070)
+
+
+![Screenshot](https://github.com/user-attachments/assets/2d50a905-b6e1-4921-bc5f-8ffd868c3663)
+
+
+
+Opening   `nfs`, `rpc-bind`, and `mountd` services in firewall:
+![Screenshot](https://github.com/user-attachments/assets/8b0c393e-0af2-435c-813d-04a0a2533b16):
+
+Configure export rule for client IP in `/etc/exports`:
+
+![Screenshot](https://github.com/user-attachments/assets/8e74b664-e0fe-4ee9-a07f-8c1920ddf06c)
+
+
+
+
+We enable the `nfs-server` and run `exportfs -rav`:
+
+![Screenshot](https://github.com/user-attachments/assets/61d8ff7a-e7a3-4089-b0f8-8091635ddd2e)
+
+
+
+
+
+
+### b) Modify LDAP User
+![Screenshot](https://github.com/user-attachments/assets/ffd4527a-530b-4468-af44-7222a8fd06ef)
+
+
+![Screenshot](https://github.com/user-attachments/assets/5a9e4b83-1b06-4801-9fde-aa3e231f5aac)
+![Screenshot](https://github.com/user-attachments/assets/74386a67-1063-4996-adb8-0637d77e489b)
+
+### c) Client configuration and verification
+
+For verification we created a testfile on the client and read the same file on the server.
+Insert missing pic from Client.
+
+![Screenshot](https://github.com/user-attachments/assets/69d5e047-210d-4842-a368-80ad7c0c99f3)
+
+
+
+
+### b) Modify LDAP User
 
 *Modify LDAP user so `homeDirectory` points to `/share/home/<user>`.*
 
@@ -129,18 +158,7 @@ Placeholder for final write-up and screenshots:
 - `ldapmodify` command
 - `ldapsearch` verification
 
-### c) Client configuration and verification
 
-*Mount server export on client via `/etc/fstab`, reboot (or remount), then verify file operations from client are visible on server.*
-
-Placeholder for final write-up and screenshots:
-
-- Client-side `/etc/fstab` NFS entry
-- Login as LDAP user on client (`su - simpleuser`)
-- Create test file from client
-- Read same file on server
-
----
 
 ## Task 3: Custom PAM profile for pam_mount
 
