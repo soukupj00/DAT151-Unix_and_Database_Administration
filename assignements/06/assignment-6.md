@@ -4,7 +4,7 @@
 
 **Group Members:** Soukup Jan, Fabienne Feilke
 
-**Date:** April ..., 2026
+**Date:** April 19, 2026
 
 ---
 
@@ -285,7 +285,7 @@ Control behavior:
 - `default=1`: if the result is neither success nor ignore, PAM skips one following rule.
 - `ignore=ignore`: ignore leaves flow unaffected.
 
-In this stack, the practical effect is:
+In this instance, the effect is following:
 
 - Regular user: continue with `pam_localuser.so`, then continue through the stack.
 - Non-regular/system-type user: skip one entry (the `pam_localuser.so` line), then continue at the next rule (`pam_unix.so`).
@@ -301,7 +301,7 @@ auth [default=ok success=6] pam_usertype.so isregular
 Consequences:
 
 - If `isregular` succeeds, PAM skips 6 following `auth` lines.
-- In the shown order, that jump lands at/near the final deny path (`pam_deny.so`), causing regular users to fail authentication.
+- In the shown order, that jump lands at the final deny path (`pam_deny.so`), causing regular users to fail authentication.
 - If `isregular` does not succeed, `default=ok` means no skip and flow continues normally for the non-regular case.
 
 This replacement effectively inverts intended behavior and would block normal regular-user logins.
