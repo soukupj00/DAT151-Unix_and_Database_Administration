@@ -1,0 +1,85 @@
+MariaDB [(none)]> USE ASSIGNMENT4;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+MariaDB [ASSIGNMENT4]> show tables;
++-----------------------+
+| Tables_in_ASSIGNMENT4 |
++-----------------------+
+| ANOTHER_TABLE         |
+| BOOKING               |
+| CHILD_TABLE           |
+| EVENT                 |
+| LOGTABLE              |
+| PARENT_TABLE          |
+| PARTICIPANT           |
+| T1                    |
+| T2                    |
+| T3                    |
+| TEACHER               |
+| THETABLE              |
++-----------------------+
+12 rows in set (0.001 sec)
+
+MariaDB [ASSIGNMENT4]> describe PARTICIPANT;
++------------+------------------+------+-----+---------+-------+
+| Field      | Type             | Null | Key | Default | Extra |
++------------+------------------+------+-----+---------+-------+
+| pId        | int(10) unsigned | NO   | PRI | NULL    |       |
+| sureName   | varchar(50)      | NO   |     | NULL    |       |
+| givenNames | varchar(50)      | NO   |     | NULL    |       |
++------------+------------------+------+-----+---------+-------+
+3 rows in set (0.002 sec)
+
+MariaDB [ASSIGNMENT4]> INSERT INTO PARTICIPANT (pId, sureName, givenNames)
+    -> SELECT seq + 1000000, CONCAT('Smith_', seq), CONCAT('John_', seq)
+    -> FROM seq_1_to_1000;
+ERROR 1062 (23000): Duplicate entry '1000010' for key 'PRIMARY'
+MariaDB [ASSIGNMENT4]> select count(*) from PARTICIPANT;
++----------+
+| count(*) |
++----------+
+|   274738 |
++----------+
+1 row in set (0.066 sec)
+
+MariaDB [ASSIGNMENT4]> SET @max_id = (SELECT MAX(pId) FROM PARTICIPANT);
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [ASSIGNMENT4]> INSERT INTO PARTICIPANT (pId, sureName, givenNames)
+    -> SELECT @max_id + seq, CONCAT('Smith_', seq), CONCAT('John_', seq)
+    -> FROM seq_1_to_1000;
+Query OK, 1000 rows affected (0.013 sec)
+Records: 1000  Duplicates: 0  Warnings: 0
+
+MariaDB [ASSIGNMENT4]> SELECT COUNT(*) FROM PARTICIPANT;
++----------+
+| COUNT(*) |
++----------+
+|   275738 |
++----------+
+1 row in set (0.093 sec)
+
+MariaDB [ASSIGNMENT4]> DROP TABLE BOOKING;
+Query OK, 0 rows affected (0.018 sec)
+
+MariaDB [ASSIGNMENT4]> DROP TABLE PARTICIPANT;
+Query OK, 0 rows affected (0.017 sec)
+
+MariaDB [ASSIGNMENT4]> CREATE TABLE PARTICIPANT (
+    ->     pId INT(10) UNSIGNED NOT NULL,
+    ->     sureName VARCHAR(50) NOT NULL,
+    ->     givenNames VARCHAR(50) NOT NULL,
+    ->     PRIMARY KEY (pId)
+    -> ) ENGINE=InnoDB;
+Query OK, 0 rows affected (0.019 sec)
+
+MariaDB [ASSIGNMENT4]> INSERT INTO PARTICIPANT (pId, sureName, givenNames)
+    -> SELECT seq, CONCAT('Doe_', seq), CONCAT('Jane_', seq)
+    -> FROM seq_1_to_100;
+Query OK, 100 rows affected (0.007 sec)
+Records: 100  Duplicates: 0  Warnings: 0
+
+MariaDB [ASSIGNMENT4]> FLUSH LOGS;
+Query OK, 0 rows affected (0.025 sec)

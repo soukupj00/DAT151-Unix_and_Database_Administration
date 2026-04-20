@@ -1,0 +1,13 @@
+FLUSH TABLES WITH READ LOCK;
+Query OK, 0 rows affected (0.014 sec)
+
+MariaDB [(none)]> SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000005 |      819 |              |                  |
++------------------+----------+--------------+------------------+
+1 row in set (0.000 sec)
+
+MariaDB [(none)]> UNLOCK TABLES;
+Query OK, 0 rows affected (0.000 sec)

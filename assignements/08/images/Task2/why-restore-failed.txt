@@ -1,0 +1,9 @@
+Why did the second command fail?
+
+That Error 1105 is a Primary Key Collision in disguise.
+
+Here is what happened: because your MariaDB server is using binlog-format=row, the binary log doesn't just record the SQL query; it records the exact physical data that was inserted. During our disaster simulation, the table was empty, so we inserted IDs 1 through 100. The binary log dutifully recorded those exact IDs.
+
+When you tried to replay that log into your restored table, it tried to insert ID 1, 2, 3, etc. But because the base data is back, IDs 1 through 100 already belong to your original participants!
+
+The assignment states you must restore the database as it would have been if you had not deleted the tables. If the tables were never deleted, those 100 rows would have just been added to the end of the table.

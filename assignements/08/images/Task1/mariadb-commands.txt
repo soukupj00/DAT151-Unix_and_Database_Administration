@@ -1,0 +1,89 @@
+CREATE DATABASE IF NOT EXISTS test1;
+Query OK, 1 row affected (0.001 sec)
+
+MariaDB [(none)]> USE test1;
+Database changed
+MariaDB [test1]> CREATE TABLE authors (
+    ->     id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     name VARCHAR(100),
+    ->     country VARCHAR(50)
+    -> ) ENGINE=InnoDB;
+Query OK, 0 rows affected (0.023 sec)
+
+MariaDB [test1]> 
+MariaDB [test1]> INSERT INTO authors (name, country) VALUES
+    -> ('George Orwell', 'United Kingdom'),
+    -> ('Haruki Murakami', 'Japan'),
+    -> ('J.K. Rowling', 'United Kingdom');
+Query OK, 3 rows affected (0.004 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+MariaDB [test1]> 
+MariaDB [test1]> CREATE TABLE books (
+    ->     id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     title VARCHAR(200),
+    ->     author_id INT,
+    ->     published_year INT,
+    ->     genre VARCHAR(50),
+    ->     FOREIGN KEY (author_id) REFERENCES authors(id)
+    -> ) ENGINE=InnoDB;
+Query OK, 0 rows affected (0.018 sec)
+
+MariaDB [test1]> 
+MariaDB [test1]> INSERT INTO books (title, author_id, published_year, genre) VALUES
+    -> ('1984', 1, 1949, 'Dystopian'),
+    -> ('Norwegian Wood', 2, 1987, 'Romance'),
+    -> ('Harry Potter and the Philosopher\'s Stone', 3, 1997, 'Fantasy');
+Query OK, 3 rows affected (0.004 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+===============DB Test 2=========
+
+CREATE DATABASE IF NOT EXISTS test2;
+Query OK, 1 row affected (0.001 sec)
+
+MariaDB [test1]> USE test2;
+Database changed
+MariaDB [test2]> CREATE TABLE customers (
+    ->     id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     name VARCHAR(100),
+    ->     email VARCHAR(100)
+    -> ) ENGINE=InnoDB;
+Query OK, 0 rows affected (0.016 sec)
+
+MariaDB [test2]> 
+MariaDB [test2]> INSERT INTO customers (name, email) VALUES
+    -> ('Alice Johnson', 'alice@example.com'),
+    -> ('Bob Smith', 'bob@example.com');
+Query OK, 2 rows affected (0.002 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [test2]> 
+MariaDB [test2]> CREATE TABLE orders (
+    ->     id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     customer_id INT,
+    ->     product VARCHAR(100),
+    ->     amount DECIMAL(10,2),
+    ->     FOREIGN KEY (customer_id) REFERENCES customers(id)
+    -> ) ENGINE=InnoDB;
+Query OK, 0 rows affected (0.023 sec)
+
+MariaDB [test2]> 
+MariaDB [test2]> INSERT INTO orders (customer_id, product, amount) VALUES
+    -> (1, 'Laptop', 1200.00),
+    -> (1, 'Mouse', 25.50),
+    -> (2, 'Keyboard', 45.99);
+Query OK, 3 rows affected (0.005 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+==== BACKUP USER ====
+
+CREATE USER 'backup_user'@'localhost' IDENTIFIED BY 'backup_password';
+Query OK, 0 rows affected (0.005 sec)
+
+MariaDB [test1]> GRANT SELECT, RELOAD, PROCESS, LOCK TABLES, REPLICATION CLIENT, SUPER ON *.* TO 'backup_user'@'localhost';
+Query OK, 0 rows affected (0.004 sec)
+
+MariaDB [test1]> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.001 sec)
+
