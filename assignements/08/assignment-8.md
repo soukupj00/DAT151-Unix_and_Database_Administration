@@ -4,7 +4,7 @@
 
 **Group Members:** Soukup Jan, Fabienne Feilke
 
-**Date:** April 20, 2026
+**Date:** May 4, 2026
 
 ---
 
@@ -55,7 +55,9 @@ the dump:
 CREATE DATABASE IF NOT EXISTS ...;
 USE ...;
 
-We createt some tables in different databases and filled them with data.
+### Solution
+
+We created example databases `test1` and `test2` with example tables and filled them with data.
 
 ```sql
 CREATE DATABASE IF NOT EXISTS test1;
@@ -97,6 +99,7 @@ MariaDB [test1]> INSERT INTO books (title, author_id, published_year, genre) VAL
 Query OK, 3 rows affected (0.004 sec)
 Records: 3  Duplicates: 0  Warnings: 0
 ```
+
 ```sql
 CREATE DATABASE IF NOT EXISTS test2;
 Query OK, 1 row affected (0.001 sec)
@@ -134,28 +137,25 @@ MariaDB [test2]> INSERT INTO orders (customer_id, product, amount) VALUES
     -> (2, 'Keyboard', 45.99);
 Query OK, 3 rows affected (0.005 sec)
 Records: 3  Duplicates: 0  Warnings: 0
-
 ```
 
 ![Screenshot](https://github.com/user-attachments/assets/e416a7f2-dd54-4351-a721-c7ea43dc9071)
 
 In our next step we had to enable binary logging.
 
-![Screenshot](https://github.com/user-attachments/assets/13674eb6-dd90-451a-84b8-792a0b757c13)
 ![Screenshot](https://github.com/user-attachments/assets/69a06837-1f54-466f-807a-6df84f6c511b)
 
+![Screenshot](https://github.com/user-attachments/assets/13674eb6-dd90-451a-84b8-792a0b757c13)
 
 Then we restarted the mariadb server. As we can see the binary logging is enabled now.
 
 ![Screenshot](https://github.com/user-attachments/assets/3c10eb2f-b734-48b3-b8f9-3daafc372be2)
 
+#### The Backup:
 
-The Backup:
+We use `mariadb-dump` with `--single-transaction` and `--master-data=2` to create a consistent, "point-in-time" snapshot of each database individually. It captures user permissions using the `--system` flag and forces a FLUSH LOGS to rotate the binary logs.
 
-We use mariadb-dump with --single-transaction and --master-data=2 to create a consistent, "point-in-time" snapshot of each database individually. It captures user permissions using the --system flag and forces a FLUSH LOGS to rotate the binary logs.
-
-First we creating a  backup_user and granting this user specific privileges like SELECT to read data, RELOAD and SUPER to manage binary logs, and REPLICATION CLIENT to identify the database's exact point-in-time position.
-
+First we creating a **backup_user** and granting this user specific privileges like `SELECT` to read data, `RELOAD` and `SUPER` to manage binary logs, and `REPLICATION CLIENT` to identify the database's exact point-in-time position.
 
 ```sql
 CREATE USER 'backup_user'@'localhost' IDENTIFIED BY 'backup_password';
@@ -166,20 +166,13 @@ Query OK, 0 rows affected (0.004 sec)
 
 MariaDB [test1]> FLUSH PRIVILEGES;
 Query OK, 0 rows affected (0.001 sec)
-
 ```
+
 ![Screenshot](https://github.com/user-attachments/assets/cf6d59ab-15fd-4d77-8c6e-b84b4cb4dc52)
 
 We set up crontab to run the Backup every day at 2am.
 
 ![Screenshot](https://github.com/user-attachments/assets/7b604dad-7008-4fbd-9f74-84b5532d5560)
-
-
-
-
-
-
-
 
 ---
 
@@ -282,6 +275,7 @@ Why our restore failed for these commands:
 - The failing replay corresponded to row-based replication events that tried to insert `ID`s that were already present in the restored base table.
 - This is a primary key collision scenario, even though the output showed generic error 1105.
 - As such we inserted the values manually and checked the result.
+- As discussed during todays tutorial submission, the best way to go about this collision was to either use the already defined `auto-increment` to generate `ids` different to our last data, or to modify the mariadb `.bin` files - manually changing the collision `ids` to new ones and resolving the issue that way.
 
 #### c) Final correction and required row count verification
 
